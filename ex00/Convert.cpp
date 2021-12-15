@@ -6,11 +6,12 @@
 /*   By: agautier <agautier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/06 18:16:45 by agautier          #+#    #+#             */
-/*   Updated: 2021/12/06 20:00:36 by agautier         ###   ########.fr       */
+/*   Updated: 2021/12/15 19:38:05 by agautier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Convert.hpp"
+#include <climits>
 
 /*
 **	Default private constructor.
@@ -26,8 +27,7 @@ Convert::Convert(Convert const& src) { *this = src; }
 **	Parametric constructor.
 */
 Convert::Convert(std::string const& literal_value) :
-	literal_value(literal_value),
-	literal_error(false) {
+	literal_value(literal_value), literal_error(false) {
 	this->setConv();
 }
 
@@ -88,10 +88,12 @@ bool Convert::isInt(void) {
 
 	ss << this->literal_value;
 	ss >> this->i;
-	if (ss.bad() || ss.fail())
+	if (ss.bad() || ss.fail()
+		|| (i == std::numeric_limits<int>::min()
+			&& this->literal_value != std::string("-2147483648")))
 		return (false);
 	ss >> garbage;
-	return (garbage.empty()) ? true : false;
+	return (garbage.empty() ? true : false);
 }
 
 /*
@@ -230,7 +232,9 @@ void Convert::printInt(void) const {
 	if (this->literal_value == "inf" || this->literal_value == "+inf"
 		|| this->literal_value == "-inf" || this->literal_value == "nan"
 		|| this->literal_value == "inff" || this->literal_value == "+inff"
-		|| this->literal_value == "-inff" || this->literal_value == "nanf")
+		|| this->literal_value == "-inff" || this->literal_value == "nanf"
+		|| (this->i == std::numeric_limits<int>::min()
+			&& this->literal_value != "-2147483648"))
 		std::cout << "int: impossible" << std::endl;
 	else
 		std::cout << "int: " << this->i << std::endl;
